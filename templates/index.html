@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="ArtifactIQ — predictive digital forensics platform for evidence acquisition, correlation and investigation.">
+  <title>ArtifactIQ — Predictive Digital Forensics</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="noise"></div>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="ArtifactIQ home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 48 48" role="img">
+          <path d="M24 4 41 14v20L24 44 7 34V14L24 4Z" fill="none" stroke="currentColor" stroke-width="2.4"/>
+          <path d="m15 27 6-12 4 8 3-5 6 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="15" cy="27" r="2.3" fill="currentColor"/>
+          <circle cx="25" cy="23" r="2.3" fill="currentColor"/>
+          <circle cx="34" cy="30" r="2.3" fill="currentColor"/>
+        </svg>
+      </span>
+      <span>
+        <strong>ARTIFACT<span>IQ</span></strong>
+        <small>PREDICTIVE DIGITAL FORENSICS</small>
+      </span>
+    </a>
+    <div class="top-status"><span class="status-dot"></span> Local-first investigation workspace</div>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow"><span>DFIR</span><i></i><span>WINDOWS-FIRST</span><i></i><span>INVESTIGATOR ASSIST</span></div>
+        <h1>Turn scattered artifacts<br><em>into an investigation story.</em></h1>
+        <p class="hero-text">Acquire evidence, reconstruct events, recover deleted artifacts, and move from <b>what happened</b> to <b>what may happen next</b> — with explainable analysis at every step.</p>
+        <div class="hero-chips">
+          <span>Evidence integrity</span><span>Unified timeline</span><span>Predictive analysis</span><span>AI explanation</span>
+        </div>
+      </div>
+      <div class="hero-orbit" aria-hidden="true">
+        <div class="orbit orbit-1"></div><div class="orbit orbit-2"></div><div class="orbit orbit-3"></div>
+        <div class="core">
+          <div class="core-icon">IQ</div>
+          <span>Evidence<br>Intelligence</span>
+        </div>
+        <span class="node node-a">EVTX</span><span class="node node-b">USB</span><span class="node node-c">REG</span><span class="node node-d">FS</span>
+      </div>
+    </section>
+
+    <section class="start-section">
+      <div class="section-heading">
+        <div><p class="kicker">START AN INVESTIGATION</p><h2>Choose how you want to examine evidence.</h2></div>
+        <p class="muted">ArtifactIQ keeps acquisition and analysis separate so the investigator stays in control.</p>
+      </div>
+
+      <div class="mode-grid">
+        <button class="mode-card featured" data-mode="live" type="button">
+          <div class="card-top"><span class="mode-number">01</span><span class="badge">FASTEST START</span></div>
+          <div class="mode-icon live-icon"><span></span><span></span><span></span></div>
+          <h3>Run on this system</h3>
+          <p>Collect authorized forensic artifacts directly from the machine running ArtifactIQ.</p>
+          <div class="artifact-list"><span>Event Logs</span><span>Registry</span><span>USB</span><span>Browser</span></div>
+          <div class="card-action">Start live acquisition <b>→</b></div>
+        </button>
+
+        <button class="mode-card" data-mode="image" type="button">
+          <div class="card-top"><span class="mode-number">02</span><span class="badge neutral">OFFLINE</span></div>
+          <div class="mode-icon image-icon"><span>IMG</span></div>
+          <h3>Analyze a disk image</h3>
+          <p>Work from a forensic image such as <code>.dd</code> while preserving the source as evidence.</p>
+          <div class="artifact-list"><span>.dd</span><span>.E01</span><span>Read-only workflow</span></div>
+          <div class="card-action">Select evidence image <b>→</b></div>
+        </button>
+
+        <button class="mode-card" data-mode="targeted" type="button">
+          <div class="card-top"><span class="mode-number">03</span><span class="badge neutral">TARGETED</span></div>
+          <div class="mode-icon target-icon">⌁</div>
+          <h3>Check one capability</h3>
+          <p>Run a focused examination instead of processing the entire system or image.</p>
+          <div class="artifact-list"><span>USB</span><span>Browser</span><span>Event Log</span><span>Registry</span></div>
+          <div class="card-action">Choose a forensic check <b>→</b></div>
+        </button>
+      </div>
+    </section>
+
+    <section class="trust-strip">
+      <div><strong>Built around evidence.</strong><span>Not around black-box conclusions.</span></div>
+      <div class="trust-item"><b>01</b> Hash before analysis</div>
+      <div class="trust-item"><b>02</b> Preserve source evidence</div>
+      <div class="trust-item"><b>03</b> Explain predictions</div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="close" id="closeModal" type="button" aria-label="Close">×</button>
+      <div class="modal-kicker" id="modalKicker">START</div>
+      <h2 id="modalTitle">Choose an investigation mode</h2>
+      <p id="modalText">This first version establishes the secure entry point. The acquisition workflow will be connected in the next module.</p>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <footer><span>ARTIFACTIQ</span> · Predictive Digital Forensics Platform · Prototype v0.1</footer>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
