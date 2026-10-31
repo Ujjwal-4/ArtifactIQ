@@ -4,6 +4,7 @@
 Flask>=3.0
 Werkzeug>=3.0
 reportlab>=4.0            # PDF report rendering
+gunicorn>=22.0            # WSGI server for hosted deployments (Render, etc.)
 
 # Optional parsers (the app degrades honestly to "unsupported" without them):
 python-evtx>=0.8          # Windows .evtx event logs
