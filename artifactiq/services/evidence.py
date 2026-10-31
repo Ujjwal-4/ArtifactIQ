@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import os
 import shutil
+import time
 from pathlib import Path
 
 from ..db import insert, update, one, query
@@ -359,8 +360,47 @@ def remove_with_retention(evidence_id: str, actor: str) -> dict:
     trash_dir.mkdir(parents=True, exist_ok=True)
     if p.is_file():
         target = trash_dir / f"{evidence_id}_{ev['stored_name']}"
-        shutil.move(str(p), str(target))
-        note = f"Preserved copy moved to trash retention as {target.name}. Remove manually after the retention period."
+        moved = False
+        last_err: Exception | None = None
+        # A concurrent process (OneDrive sync, antivirus scan) can hold the file
+        # open for a moment; short retries usually clear that on Windows.
+        for _ in range(5):
+            try:
+                shutil.move(str(p), str(target))
+                moved = True
+                break
+            except PermissionError as exc:
+                last_err = exc
+                time.sleep(0.5)
+        if not moved:
+            # Move still blocked: fall back to copy-into-trash (a read lock is
+            # much rarer than a write/delete lock), then unlink best-effort.
+            try:
+                shutil.copyfile(str(p), str(target))
+                try:
+                    p.unlink()
+                    note = f"Preserved copy moved to trash retention as {target.name}. Remove manually after the retention period."
+                except PermissionError:
+                    note = (f"Preserved copy copied to trash retention as {target.name}; the "
+                            f"store copy is still held open by another process (OneDrive sync or "
+                            f"antivirus). The trash copy is complete and stays separate from the "
+                            f"untouched store file.")
+            except (PermissionError, OSError):
+                # Nothing could be moved or copied: keep the evidence in the store
+                # and say so honestly rather than pretending it was removed.
+                _ = last_err  # logging via note only; never invent details
+                note = ("Preserved copy could NOT be moved or copied to the trash folder "
+                        "(file is locked by another process); it remains in the evidence store.")
+                update("evidence", evidence_id, {
+                    "verify_status": "retained",
+                    "notes": ((ev["notes"] or "") + (" | REMOVED: " + note))[:1900],
+                })
+                custody.append("evidence_removed", ev["case_id"], None, actor=actor,
+                               reason=f"{ev['original_name']} ({evidence_id}); {note} Source artifacts outside this application were not modified.")
+                audit("evidence_removed", target=evidence_id, detail=note)
+                return {"removed": False, "note": note}
+        else:
+            note = f"Preserved copy moved to trash retention as {target.name}. Remove manually after the retention period."
     else:
         note = "Preserved copy was already missing from the store."
     # The evidence row stays with retention info so investigators can see what

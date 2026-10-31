@@ -13,6 +13,7 @@ Honesty contract:
 """
 from __future__ import annotations
 
+import gc
 import os
 import time
 from datetime import datetime, timezone
@@ -186,6 +187,9 @@ def _analyze_one(case_id: str, ev_row: dict, eng: dict) -> dict:
     src = _abs_path(ev_row)
     pre_sha = hashing.sha256_file(src)
     writer = _RowWriter(case_id, ev_row["id"], run_id)
+    img = None
+    vol = None
+    fs = None
     try:
         img = pytsk3.Img_Info(str(src))
         block = 512
@@ -245,6 +249,22 @@ def _analyze_one(case_id: str, ev_row: dict, eng: dict) -> dict:
     except Exception as exc:
         problems.append(f"{type(exc).__name__}: {exc}"[:280])
         persisted = writer.flush()
+    finally:
+        # Release the media path fully: pytsk3 keeps an OS file handle per
+        # underlying TSK object chain, so img.close() alone does NOT unlock the
+        # file on Windows — every FS_Info / Volume_Info reference must be
+        # dropped and the libtsk bindings collected, or the preserved copy
+        # stays locked ("file in use") until the whole process restarts,
+        # which breaks retention-aware removal.
+        fs = None
+        vol = None
+        if img is not None:
+            try:
+                img.close()
+            except Exception:
+                pass
+            img = None
+        gc.collect()
 
     post_sha = hashing.sha256_file(src)
     if pre_sha != post_sha:
