@@ -6,7 +6,7 @@ import os
 import tempfile
 from pathlib import Path
 
-from flask import Blueprint, jsonify, request, abort, current_app, send_file
+from flask import Blueprint, jsonify, request, abort, current_app, redirect, send_file
 
 from ..db import query, one, insert, update, execute, jdump, jload
 from ..util.ids import new_id, now_iso
@@ -576,4 +576,8 @@ def demo_load():
             cid = build_demo_case()
     except Exception as exc:  # demo loader must never lie about failure
         return err(f"Demo build failed: {exc}", 500)
+    if not request.is_json:
+        # real form submission (no fetch JS): land the user on the new case,
+        # never a raw JSON page
+        return redirect(f"/cases/{cid}", code=303)
     return ok(case_id=cid)

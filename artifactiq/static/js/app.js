@@ -2,8 +2,9 @@
 (function () {
   "use strict";
 
-  var csrf = document.querySelector('input[name="csrf_token"]');
-  window.CSRF = csrf ? csrf.value : "";
+  var csrf = document.querySelector('meta[name="csrf-token"]')?.content ||
+    (document.querySelector('input[name="csrf_token"]') || {}).value || "";
+  window.CSRF = csrf;
 
   function toast(msg, kind) {
     var box = document.getElementById("toasts");

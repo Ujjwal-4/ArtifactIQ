@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <title>{% block title %}ArtifactIQ{% endblock %} · ArtifactIQ</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c1117'/%3E%3Cpath d='M16 5l9 4v7c0 5.5-3.8 9.4-9 11-5.2-1.6-9-5.5-9-11V9l9-4z' fill='none' stroke='%2334b39a' stroke-width='2'/%3E%3C/svg%3E">
@@ -23,11 +24,7 @@
       <a href="{{ url_for('pages.settings') }}">Settings</a>
     </nav>
     <div class="topbar-right">
-      <form method="post" action="{{ url_for('api.demo_load') }}" id="demo-load-form">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="hidden" name="mode" value="full">
-        <button class="btn btn-ghost" type="submit">Load Demo Case</button>
-      </form>
+      <button class="btn btn-ghost" data-demo-load="full" type="button">Load Demo Case</button>
     </div>
   </header>
   <main class="content">{% block content %}{% endblock %}</main>
