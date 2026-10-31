@@ -381,3 +381,21 @@ svg text { fill: var(--text-dim); }
 @keyframes acqslide{0%{transform:translateX(-110%)}100%{transform:translateX(320%)}}
 .badge.denied,.badge.cancelled{color:#c9a7f2;border-color:#5b4a88;background:rgba(120,113,200,.14)}
 .badge.unsupported{color:#b6a7e8}
+
+/* ---- Cases list -> dedicated /cases/new page ---- */
+.new-case-card { margin: 8px auto 40px; }
+.nc-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 640px) { .nc-cols { grid-template-columns: 1fr; } }
+.nc-cols select { width: 100%; }
+
+/* ---- Targeted capability console grid ---- */
+.cap-panel { max-width: 960px; }
+.cap-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.cap-grid .panel { margin: 0; } /* neutralize .panel + .panel page spacing inside the grid */
+.cap-card { display: flex; flex-direction: column; gap: 8px; background: var(--bg-2); }
+.cap-card h3 { margin: 0; }
+.cap-card p { margin: 0; }
+.cap-card .cap-actions { margin-top: auto; padding-top: 10px; }
+/* odd card count: let the last card span the full row instead of leaving an orphan */
+.cap-grid .cap-card:last-child:nth-child(odd) { grid-column: 1 / -1; }
+@media (max-width: 640px) { .cap-grid { grid-template-columns: 1fr; } .cap-grid .cap-card:last-child:nth-child(odd) { grid-column: auto; } }

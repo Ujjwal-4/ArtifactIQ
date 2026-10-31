@@ -2,17 +2,25 @@
 {% block title %}Targeted Tools{% endblock %}
 {% block content %}
 <div class="page-title"><h1>Targeted capability console</h1></div>
-<div class="panel" style="max-width:800px">
+<div class="panel cap-panel">
   <p class="muted">
     Targeted checks run a <b>single</b> forensic capability and show only its inputs and results.
     Predictive panels are not shown, and full-investigation state is untouched — a separate targeted case
     record keeps the result isolated. An uploaded artifact stays within the targeted result.
   </p>
-  <div class="grid g2" style="margin-top:14px">
+  {% set hints = {
+    "usb_check":       "Parses setupapi.dev.log or a .reg export; maps device serials to friendly names and arrival times.",
+    "evtx_check":      "Parses Windows .evtx event logs and renders a filtered, timestamped timeline.",
+    "browser_check":   "Reads a browser profile SQLite database: history rows and download records.",
+    "integrity_check": "Re-verified SHA-256 over every registered artifact plus the chained custody ledger review.",
+    "registry_check":  "Loads a registry hive or .reg export and reviews keys/values with a forensic lens."
+  } %}
+  <div class="cap-grid" style="margin-top:14px">
     {% for cid, label in capabilities.items() %}
-    <div class="panel hover" style="background:var(--bg-2)">
+    <div class="cap-card panel hover">
       <h3>{{ label }}</h3>
-      <div class="btn-row" style="margin-top:10px">
+      <p class="muted tiny">{{ hints.get(cid, "") }}</p>
+      <div class="btn-row cap-actions">
         <button class="btn btn-sm btn-primary" data-targeted="{{ cid }}">Run in isolation</button>
       </div>
     </div>

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}New Investigation{% endblock %}
+{% block content %}
+<div class="page-title">
+  <a class="btn btn-ghost btn-sm" href="{{ url_for('pages.cases') }}">← Back to cases</a>
+</div>
+
+<div class="panel form-card new-case-card">
+  <h2>New investigation</h2>
+  <p class="muted tiny" style="margin-bottom:14px">
+    Registers the case record only — nothing is collected yet. Evidence intake happens in the Acquisition tab,
+    and every file gets a SHA-256 hash at intake.
+  </p>
+  <form id="new-case-form">
+    <label for="nc-case-number">Case number</label>
+    <input type="text" id="nc-case-number" placeholder="auto-generated if blank">
+
+    <label for="nc-title">Title <span class="required">*</span></label>
+    <input type="text" id="nc-title" required maxlength="200" placeholder="e.g. Workstation 12 exfiltration review">
+
+    <label for="nc-investigator">Investigator <span class="required">*</span></label>
+    <input type="text" id="nc-investigator" required maxlength="80">
+
+    <div class="nc-cols">
+      <div>
+        <label for="nc-mode">Mode</label>
+        <select id="nc-mode">
+          <option value="full" selected>Full investigation (all phases)</option>
+          <option value="targeted">Targeted capability (single function)</option>
+        </select>
+      </div>
+      <div>
+        <label for="nc-cap">Targeted capability</label>
+        <select id="nc-cap" disabled>
+          <option value="">—</option>
+          {% for cid, label in capabilities.items() %}
+          <option value="{{ cid }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="field-hint">Targeted mode runs only the chosen capability; predictive panels stay hidden.</div>
+
+    <label for="nc-desc">Description</label>
+    <textarea id="nc-desc" maxlength="4000"></textarea>
+
+    <label for="nc-scope">Scope</label>
+    <textarea id="nc-scope" maxlength="4000" placeholder="hosts, users, time window, knowledge questions"></textarea>
+
+    <label for="nc-auth">Authorization note</label>
+    <textarea id="nc-auth" maxlength="2000" placeholder="who authorized this investigation and when"></textarea>
+
+    <div class="btn-row" style="margin-top:18px">
+      <button class="btn btn-primary" type="submit">Create case</button>
+      <a class="btn btn-ghost" href="{{ url_for('pages.cases') }}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+{% block scripts %}<script type="application/json" id="cfg-page-case-new">{{ {
+  "create_case": url_for('api.create_case')
+ } | tojson }}</script>
+<script src="{{ url_for('static', filename='js/page_case_new.js') }}"></script>{% endblock %}

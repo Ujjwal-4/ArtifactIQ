@@ -3,7 +3,7 @@
 {% block content %}
 <div class="page-title">
   <h1>Investigations</h1>
-  <button class="btn btn-primary" type="button" id="btn-new-case">+ New case</button>
+  <a class="btn btn-primary" href="{{ url_for('pages.case_new') }}">+ New case</a>
 </div>
 
 <div class="panel">
@@ -52,44 +52,4 @@
     <div class="tiny" style="margin-top:6px">Create a new case to begin.</div></div>
   {% endif %}
 </div>
-
-<!-- new case panel -->
-<div class="panel form-card" id="new-case-panel" style="display:none; margin-top:16px">
-  <h2>New investigation</h2>
-  <form id="new-case-form">
-    <label for="nc-case-number">Case number</label>
-    <input type="text" id="nc-case-number" placeholder="auto-generated if blank">
-    <label for="nc-title">Title <span class="required">*</span></label>
-    <input type="text" id="nc-title" required maxlength="200" placeholder="e.g. Workstation 12 exfiltration review">
-    <label for="nc-investigator">Investigator <span class="required">*</span></label>
-    <input type="text" id="nc-investigator" required maxlength="80">
-    <label for="nc-desc">Description</label>
-    <textarea id="nc-desc" maxlength="4000"></textarea>
-    <label for="nc-scope">Scope</label>
-    <textarea id="nc-scope" maxlength="4000" placeholder="hosts, users, time window, knowledge questions"></textarea>
-    <label for="nc-auth">Authorization note</label>
-    <textarea id="nc-auth" maxlength="2000" placeholder="who authorized this investigation and when"></textarea>
-    <label for="nc-mode">Mode</label>
-    <select id="nc-mode">
-      <option value="full" selected>Full investigation (all phases)</option>
-      <option value="targeted">Targeted capability (single function)</option>
-    </select>
-    <label for="nc-cap">Targeted capability</label>
-    <select id="nc-cap" disabled>
-      <option value="">—</option>
-      {% for cid, label in capabilities.items() %}
-      <option value="{{ cid }}">{{ label }}</option>
-      {% endfor %}
-    </select>
-    <div class="field-hint">Targeted mode runs only the chosen capability; predictive panels stay hidden.</div>
-    <div class="btn-row" style="margin-top:16px">
-      <button class="btn btn-primary" type="submit">Create case</button>
-      <button class="btn btn-ghost" type="button" id="nc-cancel">Cancel</button>
-    </div>
-  </form>
-</div>
 {% endblock %}
-{% block scripts %}<script type="application/json" id="cfg-page-cases">{{ {
-  "create_case": url_for('api.create_case')
- } | tojson }}</script>
-<script src="{{ url_for('static', filename='js/page_cases.js') }}"></script>{% endblock %}

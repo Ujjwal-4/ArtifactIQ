@@ -48,6 +48,11 @@ def cases():
     return render_template("cases.html", cases=[dict(r) for r in rows], q=q, status=status)
 
 
+@pages_bp.get("/cases/new")
+def case_new():
+    return render_template("case_new.html")
+
+
 @pages_bp.get("/cases/<case_id>")
 def case_home(case_id: str):
     case = one("SELECT * FROM cases WHERE id=?", (case_id,))
