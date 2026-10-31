@@ -36,10 +36,10 @@
         <td>
           <div class="btn-row">
             <a class="btn btn-sm" href="{{ url_for('pages.case_home', case_id=c.id) }}">Open</a>
-            <form method="post" action="{{ url_for('api.archive_case', case_id=c.id) }}" style="margin:0">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <button class="btn btn-sm btn-ghost" type="submit">{{ 'Archive' if c.status == 'active' else 'Unarchive' }}</button>
-            </form>
+            <button class="btn btn-sm btn-ghost" type="button" data-action="archive"
+              data-url="{{ url_for('api.archive_case', case_id=c.id) }}" data-body="{}"
+              data-toast="Case {{ 'archived' if c.status == 'active' else 'restored' }}">
+              {{ 'Archive' if c.status == 'active' else 'Unarchive' }}</button>
           </div>
         </td>
       </tr>

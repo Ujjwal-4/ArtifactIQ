@@ -101,6 +101,9 @@ def archive_case(case_id):
                               "updated_at": now_iso()})
     custody.append("case_archive_toggled", case_id, None,
                    reason=f"Case status set to {one('SELECT status FROM cases WHERE id=?', (case_id,))['status']}")
+    if not request.is_json:
+        # plain form submission (no fetch JS): land back on the case list, never raw JSON
+        return redirect("/cases", code=303)
     return ok(status=one("SELECT status FROM cases WHERE id=?", (case_id,))["status"])
 
 
