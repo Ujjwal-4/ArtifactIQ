@@ -113,7 +113,8 @@ def delete_case(case_id):
     c = one("SELECT * FROM cases WHERE id=?", (case_id,))
     if not c:
         return err("Case not found.", 404)
-    confirm = (request.get_json(silent=True) or {}).get("confirm")
+    data = request.get_json(silent=True) if request.is_json else request.form
+    confirm = (data or {}).get("confirm")
     if confirm != (case_id + ":DELETE"):
         return err("Deletion requires confirm == case_id + ':DELETE'. "
                    "Evidence copies go to the trash retention folder; custody records are kept.")
@@ -126,6 +127,9 @@ def delete_case(case_id):
             return err(str(exc))
     execute("DELETE FROM cases WHERE id=?", (case_id,))
     audit("case_deleted", target=case_id, detail=";".join(notes)[:2000])
+    if not request.is_json:
+        # plain form submission (no fetch JS): land on the case list, never raw JSON
+        return redirect("/cases", code=303)
     return ok(removed_evidence=len(rows), retention_notes=notes)
 
 

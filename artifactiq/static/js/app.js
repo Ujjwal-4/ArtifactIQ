@@ -75,7 +75,10 @@
     api(url, { method: method, data: data })
       .then(function (j) {
         if (kind) toast(kind + " ✔");
-        if (b.dataset.refresh !== "none") {
+        if (b.dataset.redirect) {
+          // action removes the page underneath (e.g. case deleted): go elsewhere
+          setTimeout(function () { window.location.href = b.dataset.redirect; }, 700);
+        } else if (b.dataset.refresh !== "none") {
           setTimeout(function () { window.location.reload(); }, 700);
         }
       })

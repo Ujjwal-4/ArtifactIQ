@@ -60,6 +60,7 @@
               data-url="{{ url_for('api.delete_case', case_id=case.id) }}"
               data-confirm="Delete this case? Requires the exact confirmation code."
               data-body='{"confirm":"{{ case.id }}:DELETE"}'
+              data-redirect="/cases"
               data-toast="Case deleted (evidence moved to retention folder)">Delete case (retention-aware)</button>
       <span class="attach-note">Deletion moves preserved copies into <code>evidence/trash</code> and keeps custody records; source artifacts outside this app are untouched.</span>
     </div>
