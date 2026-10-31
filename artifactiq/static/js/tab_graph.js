@@ -13,7 +13,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     function draw(graph) {
       latest = graph;
-      document.getElementById("g-empty").style.display = graph.nodes.length ? "none" : "";
+      var emptyBox = document.getElementById("g-empty");
+      if (emptyBox) {
+        emptyBox.style.display = graph.nodes.length ? "none" : "";
+      }
       var t = ensureTooltip();
       window.renderGraph(container, graph, { width: 980, height: 520 });
       document.getElementById("g-stats").textContent =
@@ -34,7 +37,9 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("g-load").addEventListener("click", function () {
       api(CFG.analyze, { method: "POST", data: {} })
         .then(function (j) {
-          toast("Graph rebuilt: " + j.graph.nodes.length + " nodes, " + j.attack.mappings.length + " mappings");
+          // build_graph()/build_mappings() return COUNTS (not arrays) — appended
+          // counts are honest: 0 nodes / 0 mappings is a supported outcome
+          toast("Graph rebuilt: " + j.graph.nodes + " nodes, " + j.attack.mappings + " attack mappings");
           loadGraph();
         })
         .catch(function (er) { toast(er.message, "err"); });

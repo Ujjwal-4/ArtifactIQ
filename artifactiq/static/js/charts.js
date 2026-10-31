@@ -108,9 +108,8 @@
       const rad = Math.min(W, H) * 0.32 * (1 + 0.22 * (tIdx % 2)) + (i % 5) * 18;
       pos[n.id] = { x: cx + rad * Math.cos(a), y: cy + rad * Math.sin(a), n };
     });
-    const tooltip = document.createElement("div");
-    tooltip.className = "tooltip-box";
-    document.body.appendChild(tooltip);
+    const tooltip = document.querySelector(".tooltip-box") ||
+      (() => { const t = document.createElement("div"); t.className = "tooltip-box"; document.body.appendChild(t); return t; })();
 
     // edges
     rels.forEach(r => {
@@ -180,7 +179,8 @@
       g.addEventListener("mouseleave", () => { tooltip.style.display = "none"; });
       svg.appendChild(g);
     });
-    container.innerHTML = "";
+    // keep non-graph children (e.g. the #g-empty overlay) — only swap the drawing itself
+    container.querySelectorAll("svg").forEach(s => s.remove());
     container.appendChild(svg);
     return { tooltip };
   };
