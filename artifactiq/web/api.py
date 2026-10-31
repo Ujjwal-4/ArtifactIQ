@@ -107,6 +107,41 @@ def archive_case(case_id):
     return ok(status=one("SELECT status FROM cases WHERE id=?", (case_id,))["status"])
 
 
+# Tables holding derived/analysis rows of a case. On deletion these are purged:
+# with the case gone they would otherwise stay orphaned and surface as phantom
+# dashboard counters (e.g. "27 normalized events" with zero cases). Evidence
+# rows and custody_records are intentionally RETAINED (retention semantics).
+_DERIVED_TABLES = (
+    "image_files", "image_runs",           # phase 6 (children before parents)
+    "acquisition_artifacts",
+    "acquisition_sessions",
+    "reports",
+    "phase_runs",
+    "simulations",
+    "risk_assessments",
+    "relationships",
+    "entities",
+    "attack_mappings",
+    "findings",
+    "branches",
+    "events",
+    "parser_runs",
+)
+
+
+def _purge_derived_rows(case_id: str) -> dict:
+    """Delete every derived/analysis row belonging to a case; returns counts."""
+    purged: dict[str, int] = {}
+    for tbl in _DERIVED_TABLES:
+        try:
+            n = one(f"SELECT COUNT(*) AS n FROM {tbl} WHERE case_id=?", (case_id,))["n"]
+            cur = execute(f"DELETE FROM {tbl} WHERE case_id=?", (case_id,))
+            purged[tbl] = cur.rowcount if cur.rowcount is not None and cur.rowcount >= 0 else n
+        except Exception as exc:  # keep the purge tolerant; audit logs any miss
+            purged[tbl] = f"skipped: {str(exc)[:80]}"
+    return purged
+
+
 @api_bp.post("/cases/<case_id>/delete")
 def delete_case(case_id):
     """Authorized deletion with documented retention semantics."""
@@ -125,12 +160,16 @@ def delete_case(case_id):
             notes.append(ev_service.remove_with_retention(e["id"], actor="user")["note"])
         except ValueError as exc:
             return err(str(exc))
+    purged = _purge_derived_rows(case_id)
     execute("DELETE FROM cases WHERE id=?", (case_id,))
-    audit("case_deleted", target=case_id, detail=";".join(notes)[:2000])
+    detail = "; ".join(notes)[:1200]
+    purged_summary = ", ".join(f"{t}:{n}" for t, n in purged.items())[:700]
+    audit("case_deleted", target=case_id,
+          detail=f"{detail} | purged derived rows [{purged_summary}] | evidence rows and custody ledger retained")
     if not request.is_json:
         # plain form submission (no fetch JS): land on the case list, never raw JSON
         return redirect("/cases", code=303)
-    return ok(removed_evidence=len(rows), retention_notes=notes)
+    return ok(removed_evidence=len(rows), retention_notes=notes, purged=purged)
 
 
 # ---------------------------------------------------------------- evidence
