@@ -1,0 +1,12 @@
+# ArtifactIQ — never commit runtime data or environment artifacts
+artifactiq/instance/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.sqlite3
+*.db
+*.zip
+node_modules/
+.DS_Store
+Thumbs.db

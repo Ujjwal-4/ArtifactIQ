@@ -1,0 +1,41 @@
+<div class="panel">
+  <h2>Acquisition plan &amp; live/local sources</h2>
+  <div class="attach-note" style="margin-bottom:12px">
+    Choose sources <b>individually</b> — nothing is collected by default. Each source states what will be read and
+    the footprint to expect. Every failed or denied attempt is logged honestly.
+  </div>
+
+  <div class="acq-toolbar">
+    <span id="acq-count" class="tiny faint">Loading sources…</span>
+    <span class="spacer"></span>
+    <button class="btn btn-sm" id="acq-selectall">Select all</button>
+    <button class="btn btn-sm" id="acq-clear">Clear</button>
+  </div>
+
+  <div id="source-list" class="acq-grid"></div>
+
+  <div class="acq-ackbox" style="margin-top:16px">
+    <label class="acq-ack"><input type="checkbox" id="ack-auth">
+      <span><b>Authorization</b> — this collection is authorized by the case record and operator shown below.</span></label>
+    <label class="acq-ack"><input type="checkbox" id="ack-impact">
+      <span><b>Impact acknowledgment</b> — I have read the per-source footprint notes; live acquisition is not undetectable.</span></label>
+    <div class="filters" style="margin-top:12px">
+      <div><label for="acq-operator">Operator</label><input class="f-input" id="acq-operator" value="{{ case.investigator }}"></div>
+      <button class="btn btn-primary" id="acq-run" disabled>Run selected collection</button>
+    </div>
+    <div class="progress thin" id="acq-progress" hidden><span id="acq-progress-bar"></span></div>
+  </div>
+
+  <div class="table-wrap" style="margin-top:16px">
+    <table>
+      <thead><tr><th>Source</th><th>Result</th><th>Evidence</th><th>Started (local time)</th><th>Message</th></tr></thead>
+      <tbody id="acq-artifacts"><tr><td colspan="5"><div class="skeleton" style="height:80px"></div></td></tr></tbody>
+    </table>
+  </div>
+</div>
+<script type="application/json" id="cfg-acquisition">{{ {
+  "acq_sources": url_for('api.acq_sources'),
+  "acq_plan": url_for('api.acq_plan', case_id=case.id),
+  "acq_status": url_for('api.acq_status', case_id=case.id)
+ } | tojson }}</script>
+<script src="{{ url_for('static', filename='js/tab_acquisition.js') }}"></script>

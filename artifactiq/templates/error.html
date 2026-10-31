@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Error {{ code }}{% endblock %}
+{% block content %}
+<div class="panel" style="max-width:640px; margin:40px auto; text-align:center">
+  <div class="num" style="font-size:3rem; color:var(--danger)">{{ code }}</div>
+  <h2>{{ message }}</h2>
+  <p class="muted small">
+    Nothing was executed beyond your intent. For most actions the safe retry is to reload the page and repeat.
+    Detailed errors never expose raw paths or stack traces; the application log keeps diagnostics.
+  </p>
+  <div class="btn-row" style="justify-content:center; margin-top:14px">
+    <a class="btn" href="{{ url_for('pages.landing') }}">Back to dashboard</a>
+  </div>
+</div>
+{% endblock %}

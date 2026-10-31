@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ case['case_number'] }}{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>{{ case['case_number'] }}</h1>
+  <span class="muted">{{ case.title }}</span>
+  <span class="badge {{ 'ok' if case.status == 'active' else 'blocked' }}">{{ case.status }}</span>
+  <span class="badge neutral">{{ case.mode }}{% if case.capability %}: {{ case.capability }}{% endif %}</span>
+  <span class="btn-row" style="margin-left:auto">
+    <button class="btn btn-sm" type="button" data-action="refresh-phases" data-url="{{ url_for('api.phase_refresh', case_id=case.id) }}" data-toast="Phase statuses refreshed">Refresh phases</button>
+  </span>
+</div>
+
+<div class="tabs">
+  {% set targeted_tabs = ('overview', 'capability', 'evidence', 'timeline', 'reports', 'audit') %}
+  {% for t, ttitle in tab_titles.items() %}
+    {% if t == 'capability' %}
+      {% if case.mode == 'targeted' %}
+      <a href="{{ url_for('pages.case_tab', case_id=case.id, tab=t) }}" class="{{ 'active' if t == tab }}">{{ ttitle }}</a>
+      {% endif %}
+    {% elif case.mode == 'targeted' and t not in targeted_tabs %}{% else %}
+      <a href="{{ url_for('pages.case_tab', case_id=case.id, tab=t) }}" class="{{ 'active' if t == tab }}">{{ ttitle }}</a>
+    {% endif %}
+  {% endfor %}
+</div>
+
+{% if tab == 'overview' %}
+  {% include 'tabs/overview.html' %}
+{% elif tab == 'evidence' %}
+  {% include 'tabs/evidence.html' %}
+{% elif tab == 'timeline' %}
+  {% include 'tabs/timeline.html' %}
+{% elif tab == 'graph' %}
+  {% include 'tabs/graph.html' %}
+{% elif tab == 'attack' %}
+  {% include 'tabs/attack.html' %}
+{% elif tab == 'branches' %}
+  {% include 'tabs/branches.html' %}
+{% elif tab == 'simulation' %}
+  {% include 'tabs/simulation.html' %}
+{% elif tab == 'risk' %}
+  {% include 'tabs/risk.html' %}
+{% elif tab == 'assistant' %}
+  {% include 'tabs/assistant.html' %}
+{% elif tab == 'reports' %}
+  {% include 'tabs/reports.html' %}
+{% elif tab == 'audit' %}
+  {% include 'tabs/custody.html' %}
+{% elif tab == 'acquisition' %}
+  {% include 'tabs/acquisition.html' %}
+{% elif tab == 'capability' %}
+  {% include 'tabs/capability.html' %}
+{% endif %}
+{% endblock %}

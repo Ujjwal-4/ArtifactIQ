@@ -1,0 +1,17 @@
+# ArtifactIQ 2.0.0 — runtime dependencies
+#
+# Core (required):
+Flask>=3.0
+Werkzeug>=3.0
+reportlab>=4.0            # PDF report rendering
+
+# Optional parsers (the app degrades honestly to "unsupported" without them):
+python-evtx>=0.8          # Windows .evtx event logs
+regipy>=5.0               # Windows registry .HIVE files
+
+# Phase 6 disk-image analysis (The Sleuth Kit binding; .raw/.dd/.img PE-prebuilt wheels
+# exist for CPython 3.13 on Windows; the phase stays blocked without it):
+pytsk3>=20260715          # disk images: MBR/GPT partitions, NTFS/FAT/exFAT/ext walks
+
+# Dev / tests:
+pytest>=8.0

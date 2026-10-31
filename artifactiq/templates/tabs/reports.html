@@ -1,0 +1,38 @@
+<div class="panel">
+  <h2>Reports &amp; exports</h2>
+  <div class="btn-row flex-col" style="gap:10px">
+    <div class="btn-row">
+      <button class="btn btn-primary" data-action="make-report" data-url="{{ url_for('api.make_report', case_id=case.id) }}"
+              data-body='{"kind":"html"}' data-toast="HTML report generated">HTML case report</button>
+      <button class="btn" data-action="make-report" data-url="{{ url_for('api.make_report', case_id=case.id) }}"
+              data-body='{"kind":"pdf"}' data-toast="PDF generated">PDF report</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn" data-action="make-report" data-url="{{ url_for('api.make_report', case_id=case.id) }}"
+              data-body='{"kind":"findings"}' data-toast="Structured findings exported">JSON findings</button>
+      <button class="btn" data-action="make-report" data-url="{{ url_for('api.make_report', case_id=case.id) }}"
+              data-body='{"kind":"manifest"}' data-toast="Evidence manifest exported">Evidence manifest</button>
+      <button class="btn" data-action="make-report" data-url="{{ url_for('api.make_report', case_id=case.id) }}"
+              data-body='{"kind":"custody"}' data-toast="Custody report exported">Chain-of-custody</button>
+      <a class="btn" href="{{ url_for('api.timeline_export', case_id=case.id) }}">Timeline CSV</a>
+    </div>
+  </div>
+  <div class="table-wrap" style="margin-top:14px">
+    <table>
+      <thead><tr><th>Kind</th><th>File</th><th>Created (UTC)</th><th>SHA-256</th><th></th></tr></thead>
+      <tbody>
+      {% for r in reports %}
+        <tr>
+          <td><span class="chip">{{ r.kind }}</span></td>
+          <td class="tiny mono wrap">{{ r.path }}</td>
+          <td class="num tiny muted ts-local">{{ r.created_at[:19].replace('T',' ') }}</td>
+          <td class="hash tiny">{{ r.sha256[:16] }}…</td>
+          <td><a class="btn btn-sm" href="{{ url_for('api.download_report', report_id=r.id) }}">Download</a></td>
+        </tr>
+      {% else %}
+        <tr><td colspan="5"><div class="empty" style="border:none">No reports generated yet.</div></td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<div class="page-title"><h1>Settings, parsers &amp; audit</h1></div>
+
+<div class="grid g2">
+  <div class="panel">
+    <h2>Configured limits</h2>
+    <dl class="kv">
+      <dt>Max upload</dt><dd>{{ limits.MAX_UPLOAD_MB }} MB (env ARTIFACTIQ_MAX_UPLOAD_MB)</dd>
+      <dt>Max events/file</dt><dd>{{ limits.MAX_EVENTS }} (env ARTIFACTIQ_MAX_EVENTS)</dd>
+      <dt>Parser timeout</dt><dd>{{ limits.PARSER_TIMEOUT_S }} s (env ARTIFACTIQ_PARSER_TIMEOUT_S)</dd>
+      <dt>Data directory</dt><dd class="tiny mono wrap">{{ limits.DATA_DIR }}</dd>
+    </dl>
+    <h2 style="margin-top:18px">Environment flags</h2>
+    <dl class="kv">
+      <dt>Live acquisition</dt><dd>explicit per-session, audited</dd>
+      <dt>Remote LLM assist</dt><dd>disabled unless ARTIFACTIQ_LLM_ENABLED=1</dd>
+      <dt>Bound host</dt><dd>127.0.0.1 by default (loopback only)</dd>
+    </dl>
+  </div>
+  <div class="panel">
+    <h2>Parser registry (media coverage)</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Parser</th><th>Media types</th><th>Requirements</th></tr></thead>
+        <tbody>
+        {% for p in parsers %}
+          <tr><td class="mono">{{ p.name }}</td><td class="tiny">{{ p.media }}</td><td class="tiny muted">{{ p.needs }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Audit log <span class="faint tiny">administrative &amp; security-relevant actions</span></h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th class="num">#</th><th>Time (UTC)</th><th>Actor</th><th>Action</th><th>Target</th><th>Detail</th></tr></thead>
+      <tbody>
+      {% for a in audit %}
+        <tr>
+          <td class="num tiny">{{ a.id }}</td>
+          <td class="mono tiny ts-local">{{ a.ts.replace('T',' ')[:19] }}</td>
+          <td class="tiny">{{ a.actor }}</td>
+          <td><span class="chip">{{ a.action }}</span></td>
+          <td class="tiny mono">{{ a.target }}</td>
+          <td class="tiny muted wrap">{{ a.detail }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="6" class="empty" style="border:none">No audit entries yet.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

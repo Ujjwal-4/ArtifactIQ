@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Predictive digital forensics, done the honest way.</h1>
+  <p class="lead">
+    ArtifactIQ helps investigators examine acquired evidence, reconstruct event sequences,
+    map observed activity to MITRE ATT&amp;CK, and plan evidence-grounded next steps.
+    Every finding is linked back to its artifact, hash, and chain-of-custody record.
+  </p>
+  <div class="btn-row" style="margin-top:18px">
+    <a class="btn btn-primary" href="{{ url_for('pages.cases') }}">Open a case</a>
+    <a class="btn" href="{{ url_for('pages.cases') }}?new=1">New investigation</a>
+    <button class="btn" data-demo-load="full" type="button">Load demonstration case</button>
+    <span class="faint tiny" style="margin-left:8px">Demo data is synthetic and clearly labeled</span>
+  </div>
+  <div class="kpi-steps">
+    <div class="step"><span class="n">1</span><div><b>Case &amp; plan</b><div class="muted small">Define scope, authorization and evidence sources</div></div></div>
+    <div class="step"><span class="n">2</span><div><b>Acquire &amp; preserve</b><div class="muted small">Copy artifacts with SHA-256 and a custody ledger</div></div></div>
+    <div class="step"><span class="n">3</span><div><b>Parse &amp; correlate</b><div class="muted small">Normalize events, timeline, graph and ATT&amp;CK</div></div></div>
+    <div class="step"><span class="n">4</span><div><b>Predict &amp; report</b><div class="muted small">Branches, risk triage and evidence-cited reports</div></div></div>
+  </div>
+</section>
+
+<div class="grid g4" style="margin-top:18px">
+  <div class="panel stat"><div class="num num-cases">{{ stats.cases }}</div><div class="lbl">Cases</div><div class="delta">cases on record</div></div>
+  <div class="panel stat"><div class="num">{{ stats.evidence }}</div><div class="lbl">Evidence items</div><div class="delta">hashed and preserved</div></div>
+  <div class="panel stat"><div class="num">{{ stats.events }}</div><div class="lbl">Normalized events</div><div class="delta">in unified timelines</div></div>
+  <div class="panel stat"><div class="num">{{ stats.audit }}</div><div class="lbl">Audit entries</div><div class="delta">administrative actions</div></div>
+</div>
+
+<div class="grid g2" style="margin-top:18px">
+  <div class="panel">
+    <h2>Recent investigations</h2>
+    {% if recent_cases %}
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Case</th><th>Investigator</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        {% for c in recent_cases %}
+          <tr>
+            <td><a class="rowlink" href="{{ url_for('pages.case_home', case_id=c.id) }}"><b>{{ c['case_number'] }}</b><div class="muted tiny">{{ c.title }}</div></a></td>
+            <td>{{ c.investigator }}</td>
+            <td><span class="badge {{ 'ok' if c.status == 'active' else 'blocked' }}">{{ c.status }}</span></td>
+            <td class="num small muted">{{ c.created_at[:10] }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty"><span class="icon">🗂</span>No active cases yet.<div class="tiny" style="margin-top:6px">Create your first case or load the demo case to explore the workflow.</div></div>
+    {% endif %}
+  </div>
+  <div class="panel">
+    <h2>Forensic principles built in</h2>
+    <div class="muted small" style="line-height:1.75">
+      <div>◈ Original evidence is <b>never written to</b>: preserved copies live under randomized names and are SHA-256 hashed at registration.</div>
+      <div>◈ Append-only, hash-chained custody records; verification recomputes the whole chain.</div>
+      <div>◈ Live acquisition is <b>explicit, targeted and audited</b> — access-denied is reported as access-denied, never silently worked around.</div>
+      <div>◈ Missing timestamps stay missing; events with untrustworthy time are labeled, not fudged.</div>
+      <div>◈ Branches, risk scores and ATT&amp;CK mappings expose their formula, inputs and rule version.</div>
+      <div>◈ Local-first: nothing leaves the workstation unless an LLM provider is explicitly enabled.</div>
+    </div>
+  </div>
+</div>
+{% endblock %}

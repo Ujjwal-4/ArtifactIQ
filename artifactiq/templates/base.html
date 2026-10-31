@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}ArtifactIQ{% endblock %} · ArtifactIQ</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c1117'/%3E%3Cpath d='M16 5l9 4v7c0 5.5-3.8 9.4-9 11-5.2-1.6-9-5.5-9-11V9l9-4z' fill='none' stroke='%2334b39a' stroke-width='2'/%3E%3C/svg%3E">
+</head>
+<body class="{% block bodyclass %}{% endblock %}">
+<div class="app">
+  {% block layout %}
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('pages.landing') }}">
+      <span class="brand-mark">◈</span>
+      <span class="brand-text">Artifact<b>IQ</b>{% if APP_NAME %}{% endif %}</span>
+      <span class="version-chip">v{{ APP_VERSION }}</span>
+    </a>
+    <nav class="topnav">
+      <a href="{{ url_for('pages.cases') }}">Cases</a>
+      <a href="{{ url_for('pages.targeted_home') }}">Targeted Tools</a>
+      <a href="{{ url_for('pages.acquisition_console') }}">Live Acquisition</a>
+      <a href="{{ url_for('pages.settings') }}">Settings</a>
+    </nav>
+    <div class="topbar-right">
+      <form method="post" action="{{ url_for('api.demo_load') }}" id="demo-load-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="mode" value="full">
+        <button class="btn btn-ghost" type="submit">Load Demo Case</button>
+      </form>
+    </div>
+  </header>
+  <main class="content">{% block content %}{% endblock %}</main>
+  <footer class="footer">
+    <span>ArtifactIQ {{ APP_VERSION }} — local-first investigation platform</span>
+    <span class="muted">Not a certified forensic suite · verify court-relevant conclusions independently</span>
+  </footer>
+  {% endblock %}
+</div>
+<div id="toasts" class="toasts" aria-live="polite"></div>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

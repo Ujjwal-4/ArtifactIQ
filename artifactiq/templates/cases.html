@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Cases{% endblock %}
+{% block content %}
+<div class="page-title">
+  <h1>Investigations</h1>
+  <button class="btn btn-primary" type="button" id="btn-new-case">+ New case</button>
+</div>
+
+<div class="panel">
+  <form class="filters" method="get" action="{{ url_for('pages.cases') }}">
+    <div><label for="f-q">Search</label>
+      <input class="f-input" type="text" id="f-q" name="q" value="{{ q }}" placeholder="title / number / investigator"></div>
+    <div><label for="f-status">Status</label>
+      <select id="f-status" name="status">
+        <option value="" {{ "selected" if not status }}>All</option>
+        <option value="active" {{ "selected" if status == 'active' }}>Active</option>
+        <option value="archived" {{ "selected" if status == 'archived' }}>Archived</option>
+      </select></div>
+    <button class="btn" type="submit">Filter</button>
+    {% if q or status %}<a class="btn btn-ghost" href="{{ url_for('pages.cases') }}">Reset</a>{% endif %}
+  </form>
+
+  {% if cases %}
+  <div class="table-wrap" style="margin-top:12px">
+    <table>
+      <thead><tr><th>Case number</th><th>Title</th><th>Investigator</th><th>Mode</th><th>Status</th><th class="num">Created</th><th></th></tr></thead>
+      <tbody>
+      {% for c in cases %}
+      <tr>
+        <td><a class="rowlink mono" href="{{ url_for('pages.case_home', case_id=c.id) }}">{{ c['case_number'] }}</a></td>
+        <td>{{ c.title }}</td>
+        <td>{{ c.investigator }}</td>
+        <td><span class="badge neutral">{{ c.mode }}{% if c.capability %}: {{ c.capability }}{% endif %}</span></td>
+        <td><span class="badge {{ 'ok' if c.status == 'active' else 'blocked' }}">{{ c.status }}</span></td>
+        <td class="num muted ts-local">{{ c.created_at[:19].replace('T',' ') }}</td>
+        <td>
+          <div class="btn-row">
+            <a class="btn btn-sm" href="{{ url_for('pages.case_home', case_id=c.id) }}">Open</a>
+            <form method="post" action="{{ url_for('api.archive_case', case_id=c.id) }}" style="margin:0">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-sm btn-ghost" type="submit">{{ 'Archive' if c.status == 'active' else 'Unarchive' }}</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty" style="margin-top:12px"><span class="icon">🗂</span>No cases match.
+    <div class="tiny" style="margin-top:6px">Create a new case to begin.</div></div>
+  {% endif %}
+</div>
+
+<!-- new case panel -->
+<div class="panel form-card" id="new-case-panel" style="display:none; margin-top:16px">
+  <h2>New investigation</h2>
+  <form id="new-case-form">
+    <label for="nc-case-number">Case number</label>
+    <input type="text" id="nc-case-number" placeholder="auto-generated if blank">
+    <label for="nc-title">Title <span class="required">*</span></label>
+    <input type="text" id="nc-title" required maxlength="200" placeholder="e.g. Workstation 12 exfiltration review">
+    <label for="nc-investigator">Investigator <span class="required">*</span></label>
+    <input type="text" id="nc-investigator" required maxlength="80">
+    <label for="nc-desc">Description</label>
+    <textarea id="nc-desc" maxlength="4000"></textarea>
+    <label for="nc-scope">Scope</label>
+    <textarea id="nc-scope" maxlength="4000" placeholder="hosts, users, time window, knowledge questions"></textarea>
+    <label for="nc-auth">Authorization note</label>
+    <textarea id="nc-auth" maxlength="2000" placeholder="who authorized this investigation and when"></textarea>
+    <label for="nc-mode">Mode</label>
+    <select id="nc-mode">
+      <option value="full" selected>Full investigation (all phases)</option>
+      <option value="targeted">Targeted capability (single function)</option>
+    </select>
+    <label for="nc-cap">Targeted capability</label>
+    <select id="nc-cap" disabled>
+      <option value="">—</option>
+      {% for cid, label in capabilities.items() %}
+      <option value="{{ cid }}">{{ label }}</option>
+      {% endfor %}
+    </select>
+    <div class="field-hint">Targeted mode runs only the chosen capability; predictive panels stay hidden.</div>
+    <div class="btn-row" style="margin-top:16px">
+      <button class="btn btn-primary" type="submit">Create case</button>
+      <button class="btn btn-ghost" type="button" id="nc-cancel">Cancel</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+{% block scripts %}<script type="application/json" id="cfg-page-cases">{{ {
+  "create_case": url_for('api.create_case')
+ } | tojson }}</script>
+<script src="{{ url_for('static', filename='js/page_cases.js') }}"></script>{% endblock %}

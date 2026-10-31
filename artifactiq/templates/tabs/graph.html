@@ -1,0 +1,30 @@
+<div class="panel">
+  <h2>Event &amp; entity graph <span class="faint tiny">every edge cites its evidence ids on hover</span></h2>
+  <div class="filters">
+    <div><label for="g-focus">Focus entity (type::name)</label><input class="f-input" id="g-focus" placeholder="empty = top entities"></div>
+    <div><label for="g-hops">Hops</label><select id="g-hops" style="width:80px"><option>1</option><option>2</option><option>3</option></select></div>
+    <button class="btn btn-primary" id="g-load">Rebuild from evidence</button>
+    <button class="btn" id="g-redraw">Redraw</button>
+    <span class="badge info" id="g-stats">—</span>
+  </div>
+  <div id="g-graph" style="border:1px solid var(--border-weak); border-radius:10px; background:#0a0f14; min-height:500px; position:relative">
+    <div class="empty" id="g-empty" style="border:none"><span class="icon">🕸</span>Graph is not built yet. Press “Rebuild from evidence”.</div>
+  </div>
+  <div class="chart-legend" id="g-legend">
+    <span><span class="sw" style="background:#5b9bd8"></span>user</span>
+    <span><span class="sw" style="background:#34b39a"></span>host</span>
+    <span><span class="sw" style="background:#8f8ad9"></span>process</span>
+    <span><span class="sw" style="background:#7edc9a"></span>file</span>
+    <span><span class="sw" style="background:#76d0f5"></span>network</span>
+    <span><span class="sw" style="background:#d9a13c"></span>usb</span>
+    <span><span class="sw" style="background:#e2606a"></span>service</span>
+    <span><span class="sw" style="background:#e0a1c0"></span>task</span>
+  </div>
+  <div class="attach-note">Click a node to focus it (1-hop neighborhoods); drag nodes to rearrange. Node detail links back to the source evidence.</div>
+</div>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script type="application/json" id="cfg-graph">{{ {
+  "analyze": url_for('api.analyze', case_id=case.id),
+  "graph_view": url_for('api.graph_view', case_id=case.id)
+ } | tojson }}</script>
+<script src="{{ url_for('static', filename='js/tab_graph.js') }}"></script>

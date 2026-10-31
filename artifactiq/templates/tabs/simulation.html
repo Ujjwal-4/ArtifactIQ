@@ -1,0 +1,14 @@
+<div class="panel">
+  <h2>Behavioral scenario simulator <span class="faint tiny" id="sim-version"></span></h2>
+  <div class="btn-row" style="margin-bottom:12px">
+    <button class="btn btn-primary" data-action="gen-simulation" data-url="{{ url_for('api.simulation_generate', case_id=case.id) }}"
+            data-toast="Scenarios simulated">Run scenario simulation</button>
+    <span class="faint tiny">Pick a suspicious artifact, see <b>what typically happens next</b>. Observed nodes cite events from <b>this case</b>; predicted nodes are knowledge-base expectations to <b>search for</b> — never claims about what the attacker did.</span>
+  </div>
+  <div id="sim-list"><div class="skeleton" style="height:140px"></div></div>
+</div>
+<script type="application/json" id="cfg-simulation">{{ {
+  "sim_generate": url_for('api.simulation_generate', case_id=case.id),
+  "sim_view": url_for('api.simulation_view', case_id=case.id)
+ } | tojson }}</script>
+<script src="{{ url_for('static', filename='js/tab_simulation.js') }}"></script>

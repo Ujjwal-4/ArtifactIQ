@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Live Acquisition{% endblock %}
+{% block content %}
+<div class="page-title"><h1>Authorized live / local acquisition</h1></div>
+<div class="panel">
+  <div class="attach-note" style="margin-bottom:14px">
+    Live acquisition reads a running Windows endpoint. It is <b>not zero-footprint and not undetectable</b>:
+    reading logs and hives touches the running system and generates ordinary audit telemetry. ArtifactIQ
+    never disables security tooling, never clears logs, never bypasses permissions and never conceals its
+    actions. Select sources individually per case, cancel any time.
+  </div>
+  <div class="acq-toolbar" id="src-count" hidden></div>
+  <div class="acq-grid" id="src-cards"></div>
+  <div class="attach-note" style="margin-top:14px">Open a case → Acquisition tab to run a collection session for that case.</div>
+</div>
+{% endblock %}
+{% block scripts %}<script type="application/json" id="cfg-page-acquisition">{{ {
+  "acq_sources": url_for('api.acq_sources')
+ } | tojson }}</script>
+<script src="{{ url_for('static', filename='js/page_acquisition.js') }}"></script>{% endblock %}

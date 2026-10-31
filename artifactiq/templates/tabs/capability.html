@@ -1,0 +1,53 @@
+{% if case.mode != 'targeted' %}
+<div class="panel">
+  <h2>Targeted capability results</h2>
+  <div class="empty"><span class="icon">◎</span>This case is not in targeted mode.
+    <div class="tiny muted" style="margin-top:6px">Import a capability run from the Targeted Tools console to see it here.</div></div>
+</div>
+{% else %}
+<div class="panel">
+  <h2>Capability scope: {{ case.capability }}</h2>
+  <div class="attach-note" style="margin-bottom:14px">
+    This case runs only <b>{{ capabilities.get(case.capability, case.capability) }}</b>. Predictive phases 8–12
+    stay inactive: targeted results are isolated unless explicitly imported into a full investigation.
+  </div>
+  <div class="panel" style="background:var(--bg-2); margin-bottom:14px">
+    <h3>1 — attach the artifact to check</h3>
+    <form id="cap-upload-form">
+      <div class="btn-row">
+        <input type="file" id="cap-file" accept="{{ cap_accept }}" required>
+        <input type="text" id="cap-notes" placeholder="Optional note (source of the artifact)" style="min-width:260px">
+        <button class="btn btn-primary" type="submit" id="cap-up-submit">Register artifact</button>
+      </div>
+      <div class="tiny muted" style="margin-top:6px">Accepted for this capability: <span class="mono">{{ cap_accept }}</span> · Chrome/Edge files named <span class="mono">History</span> (no extension) are treated as browser SQLite · uploaded copies are hashed (SHA-256) on intake and stay isolated inside this targeted case.</div>
+      <div class="tiny" style="margin-top:4px"><span class="faint">Need something else uploaded?</span> <a href="{{ url_for('pages.case_tab', case_id=case.id, tab='evidence') }}">Open the evidence tab</a></div>
+    </form>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-primary" data-action="parse-evidence"
+            data-url="{{ url_for('api.parse_case', case_id=case.id) }}"
+            data-toast="Capability executed">2 — run capability</button>
+    <span class="tiny faint">or register an artifact above — the run happens automatically after upload</span>
+  </div>
+  <div class="table-wrap" style="margin-top:14px">
+    <table>
+      <thead><tr><th>Evidence</th><th>Status</th><th>Events</th><th>Message</th></tr></thead>
+      <tbody id="cap-runs"><tr><td colspan="4"><div class="skeleton" style="height:80px"></div></td></tr></tbody>
+    </table>
+  </div>
+  <div class="panel" style="margin-top:14px; background:var(--bg-2)">
+    <h3>Result preview (events)</h3>
+    <div id="cap-events"></div>
+  </div>
+</div>
+{% endif %}
+{% if case.mode == 'targeted' %}
+<script type="application/json" id="cfg-capability">{{ {
+  "parser_runs": url_for('api.parser_runs', case_id=case.id),
+  "timeline": url_for('api.timeline', case_id=case.id),
+  "upload": url_for('api.upload_evidence', case_id=case.id),
+  "parse": url_for('api.parse_case', case_id=case.id),
+  "media_type": cap_media_type
+ } | tojson }}</script>
+<script src="{{ url_for('static', filename='js/tab_capability.js') }}"></script>
+{% endif %}

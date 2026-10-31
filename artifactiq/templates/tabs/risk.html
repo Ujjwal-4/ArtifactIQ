@@ -1,0 +1,13 @@
+<div class="panel">
+  <h2>Risk &amp; impact triage <span class="faint tiny">deterministic · fully explainable</span></h2>
+  <div class="btn-row" style="margin-bottom:14px">
+    <button class="btn btn-primary" data-action="compute-risk" data-url="{{ url_for('api.risk_compute', case_id=case.id) }}"
+            data-toast="Risk recomputed">Recompute score</button>
+    <span class="faint tiny">Score = triage priority; it is not the probability of compromise. Business context stays “unknown” unless you supply it.</span>
+  </div>
+  <div id="risk-body"><div class="skeleton" style="height:150px"></div></div>
+</div>
+<script type="application/json" id="cfg-risk">{{ {
+  "risk_view": url_for('api.risk_view', case_id=case.id)
+ } | tojson }}</script>
+<script src="{{ url_for('static', filename='js/tab_risk.js') }}"></script>

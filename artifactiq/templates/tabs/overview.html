@@ -1,0 +1,73 @@
+<div class="grid g3">
+  <div class="panel stat">
+    <div class="num" id="ov-evidence-count">{{ evidence|length }}</div>
+    <div class="lbl">Evidence items</div>
+    <div class="delta" id="ov-hash-status">integrity checked below</div>
+  </div>
+  <div class="panel stat">
+    <div class="num" id="ov-events">…</div>
+    <div class="lbl">Phases completed</div>
+    <div class="delta" id="ov-phases-note">loading</div>
+  </div>
+  <div class="panel stat">
+    <div class="num" id="ov-findings">…</div>
+    <div class="lbl">Findings &amp; mappings</div>
+    <div class="delta" id="ov-findings-note">loading</div>
+  </div>
+</div>
+
+<div class="panel" style="margin-top:16px">
+  <h2>Workflow phases <span class="faint tiny">— statuses derive from real artifacts, not labels</span></h2>
+  <div id="phase-list"><div class="skeleton" style="height:150px"></div></div>
+  <div class="table-wrap" style="margin-top:12px">
+    <table>
+      <thead><tr><th>Phase</th><th>Status</th><th>Finished (local time)</th><th>Detail</th></tr></thead>
+      <tbody>
+      {% for r in phase_rows %}
+        <tr>
+          <td class="mono tiny">{{ r.phase }}</td>
+          <td><span class="badge {{ r.status }}">{{ r.status.replace('_', ' ') }}</span></td>
+          <td class="num tiny muted ts-local">{{ (r.finished_at or r.started_at)[:19].replace('T',' ') }}</td>
+          <td class="tiny muted wrap">{{ r.detail[:180] }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="4" class="empty" style="border:none">No phase runs recorded yet — hit “Refresh phases”.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="grid g2">
+  <div class="panel">
+    <h2>Case record</h2>
+    <dl class="kv">
+      <dt>Case number</dt><dd class="mono">{{ case['case_number'] }}</dd>
+      <dt>Investigator</dt><dd>{{ case.investigator }}</dd>
+      <dt>Description</dt><dd>{{ case.description or '—' }}</dd>
+      <dt>Scope</dt><dd>{{ case.scope or '—' }}</dd>
+      <dt>Authorization</dt><dd>{{ case.authorization or '—' }}</dd>
+      <dt>Created</dt><dd class="ts-local">{{ case.created_at[:19].replace('T',' ') }}</dd>
+    </dl>
+  </div>
+  <div class="panel">
+    <h2>Case actions</h2>
+    <div class="btn-row" style="flex-direction:column; align-items:flex-start">
+      <a class="btn" href="{{ url_for('pages.case_tab', case_id=case.id, tab='evidence') }}">Evidence &amp; integrity</a>
+      <a class="btn" href="{{ url_for('pages.case_tab', case_id=case.id, tab='acquisition') }}">Acquisition plan &amp; live sources</a>
+      <a class="btn" href="{{ url_for('pages.case_tab', case_id=case.id, tab='reports') }}">Generate reports</a>
+      <button class="btn btn-danger" data-action="delete-case"
+              data-url="{{ url_for('api.delete_case', case_id=case.id) }}"
+              data-confirm="Delete this case? Requires the exact confirmation code."
+              data-body='{"confirm":"{{ case.id }}:DELETE"}'
+              data-toast="Case deleted (evidence moved to retention folder)">Delete case (retention-aware)</button>
+      <span class="attach-note">Deletion moves preserved copies into <code>evidence/trash</code> and keeps custody records; source artifacts outside this app are untouched.</span>
+    </div>
+  </div>
+</div>
+<script type="application/json" id="cfg-overview">{{ {
+  "phase_status": url_for('api.phase_status', case_id=case.id),
+  "get_evidence": url_for('api.get_evidence', case_id=case.id),
+  "attack_view": url_for('api.attack_view', case_id=case.id)
+ } | tojson }}</script>
+<script src="{{ url_for('static', filename='js/tab_overview.js') }}"></script>

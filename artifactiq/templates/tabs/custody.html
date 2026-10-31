@@ -1,0 +1,26 @@
+<div class="panel">
+  <h2>Chain of custody <span class="faint tiny">append-only records, hash-chained</span></h2>
+  <div class="btn-row" style="margin-bottom:12px">
+    <button class="btn btn-primary" id="custody-verify">Verify full chain now</button>
+    <span class="badge info" id="custody-status">not verified in this session</span>
+  </div>
+  <div class="attach-note" style="margin-bottom:12px">
+    Hash chaining protects against a silent database rewrite <b>by the application</b>. It does not make the
+    local database immutable — datacenter-level anchoring or signed checkpoints are the mitigation, and the export
+    above is the portable artifact.
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th class="num">#</th><th>Timestamp (local)</th><th>Actor</th><th>Action</th><th>Evidence</th><th>Reason</th><th>Record hash</th></tr></thead>
+      <tbody id="custody-body">
+        {% for r in records if false %}
+        {% endfor %}
+        <tr><td colspan="7"><div class="skeleton" style="height:130px"></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<script type="application/json" id="cfg-custody">{{ {
+  "custody_chain": url_for('api.custody_chain', case_id=case.id)
+ } | tojson }}</script>
+<script src="{{ url_for('static', filename='js/tab_custody.js') }}"></script>

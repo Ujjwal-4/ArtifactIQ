@@ -1,0 +1,156 @@
+<div class="panel">
+  <h2>Evidence inventory &amp; integrity</h2>
+  {% if evidence %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Original name</th><th>Type</th><th class="num">Size</th><th>SHA-256 (screened)</th>
+        <th>Method</th><th>Integrity</th><th>Actions</th>
+      </tr></thead>
+      <tbody>
+      {% for e in evidence %}
+      <tr>
+        <td class="rowlink" data-ev-name="{{ e.original_name }}"><b>{{ e.original_name }}</b>
+          <div class="tiny faint">{{ e.acquired_at[:19].replace('T',' ') }}</div></td>
+        <td><span class="chip">{{ e.media_type }}</span></td>
+        <td class="num">{{ display_size(e.size) }}</td>
+        <td class="hash" title="{{ e.sha256 }}">{{ e.sha256[:18] }}…</td>
+        <td><span class="badge neutral">{{ e.acquisition_method.replace('_',' ') }}</span>
+          {% if e.notes %}<div class="tiny faint">{{ e.notes[:90] }}</div>{% endif %}</td>
+        <td>
+          {% if e.verify_status == 'verified' %}<span class="badge ok">verified</span>
+          {% elif e.verify_status == 'mismatch' %}<span class="badge mismatch">mismatch!</span>
+          {% elif e.verify_status == 'error' %}<span class="badge err">error</span>
+          {% elif e.verify_status == 'recorded' %}<span class="badge info">recorded</span>
+          {% else %}<span class="badge blocked">unverified</span>{% endif %}
+          <div class="tiny faint">{{ (e.verified_at or '')[:19].replace('T',' ') }}</div>
+        </td>
+        <td>
+          <div class="btn-row">
+            <button class="btn btn-sm" data-preview-id="{{ e.id }}"
+                    data-ev-name="{{ e.original_name }}">Preview</button>
+            <button class="btn btn-sm" data-action="verify-evidence"
+                    data-url="{{ url_for('api.verify_evidence', evidence_id=e.id) }}"
+                    data-confirm="Recompute SHA-256 of the preserved copy now?"
+                    data-toast="Hash recomputation requested">Verify hash</button>
+            {% if case.mode == 'full' %}
+            <button class="btn btn-sm" data-action="parse-evidence"
+                    data-url="{{ url_for('api.parse_case', case_id=case.id) }}"
+                    data-method="POST" data-body='{"evidence_id":"{{ e.id }}"}'
+                    data-toast="Parser executed">Parse</button>
+            {% endif %}
+            <button class="btn btn-sm btn-danger" data-action="remove-evidence"
+                    data-url="{{ url_for('api.remove_evidence', evidence_id=e.id) }}"
+                    data-confirm="Move this preserved copy to the retention folder?"
+                    data-toast="Evidence moved to retention folder">Retain &amp; remove</button>
+          </div>
+          {% if e.source_hash %}<div class="tiny {% if e.verify_status == 'mismatch' %}badge mismatch{% else %}faint{% endif %}" style="margin-top:4px">
+            source hash: {{ e.source_hash[:18] }}…</div>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty"><span class="icon">📦</span>No evidence registered yet.
+    <div class="tiny" style="margin-top:6px">Import an artifact below, or use the acquisition plan tab.</div></div>
+  {% endif %}
+</div>
+
+<div class="panel" style="margin-top:16px">
+  <h2>Import artifact (offline evidence)</h2>
+  <form id="upload-form" class="grid g2">
+    <div>
+      <label for="up-file">File <span class="required">*</span></label>
+      <input type="file" id="up-file" name="file" required>
+      <div class="field-hint">Allow-list: .evtx .sqlite / .db .reg .hiv .log1 .csv .json .txt .setupapi log · disk images: .raw .dd .img .e01 .vhd .vhdx .001 · Max {{ limits_max_mb|default(2048) }} MB</div>
+    </div>
+    <div>
+      <label for="up-type">Media type (optional; auto-detected)</label>
+      <select id="up-type" name="media_type">
+        <option value="">auto</option>
+        <option>evtx</option><option>browser_sqlite</option><option>generic_sqlite</option>
+        <option>registry_export</option><option>registry_hive</option><option>usb_history</option>
+        <option>csv</option><option>json</option><option>text</option>
+        <option>disk_image</option><option>memory_image</option><option>pcap</option>
+      </select>
+      <label for="up-hash">Source SHA-256 fragment (16/40/64 hex, optional)</label>
+      <input type="text" id="up-hash" name="source_hash" placeholder="compare against the acquired copy">
+    </div>
+    <div>
+      <label for="up-src">Original source description</label>
+      <input type="text" id="up-src" name="source_desc" placeholder="e.g. copied from D:\evidence\host12">
+    </div>
+    <div>
+      <label for="up-notes">Notes</label>
+      <input type="text" id="up-notes" name="notes" placeholder="how and why this was collected">
+    </div>
+    <div>
+      <label for="up-method">Acquisition method label</label>
+      <select id="up-method" name="acquisition_method">
+        <option value="offline_upload">offline_upload</option>
+        <option value="snapshot">snapshot</option>
+      </select>
+    </div>
+    <div>
+      <label for="up-investigator">Investigator</label>
+      <input type="text" id="up-investigator" name="investigator" value="{{ case.investigator }}">
+    </div>
+    <div class="btn-row" style="grid-column: 1 / span 2; margin-top:14px">
+      <button class="btn btn-primary" type="submit" id="up-submit">Register evidence</button>
+      <span class="faint tiny" id="up-progress-label"></span>
+    </div>
+    <div class="progress thin" style="grid-column: 1 / span 2"><span id="up-progress" style="width:0"></span></div>
+  </form>
+</div>
+<div class="panel" style="margin-top:16px" id="image-analysis-panel" hidden>
+  <h2>Disk image analysis <span class="tiny faint">— phase 6 · real Sleuth Kit (pytsk3) read-only parsing</span></h2>
+  <p class="tiny faint" style="margin:4px 0 10px">
+    Registered disk images are opened by The Sleuth Kit: partition tables are enumerated and each
+    readable filesystem is walked (files, folders, deleted entries, MACB times). The preserved
+    evidence copy is SHA-256 checked before and after the run. No extraction writes to evidence.</p>
+  <div id="image-engine-note" class="tiny" style="margin-bottom:10px"></div>
+  <div class="btn-row" style="margin-bottom:10px">
+    <button class="btn btn-primary" id="image-analyze-btn">Analyze disk image(s) now</button>
+    <span class="faint tiny" id="image-analysis-status"></span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Evidence</th><th>Engine</th><th>Last run</th><th class="num">Files</th>
+        <th class="num">Dirs</th><th class="num">Deleted</th><th>Partitions / detail</th></tr></thead>
+      <tbody id="image-run-body"></tbody>
+    </table>
+  </div>
+  <div id="image-files-head" hidden style="margin-top:12px">
+    <h3 style="margin-bottom:6px">Filesystem entries of the latest run <span class="tiny faint">(first 300)</span></h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Path</th><th>Kind</th><th class="num">Size</th><th>Modified (UTC)</th></tr></thead>
+        <tbody id="image-file-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<script type="application/json" id="cfg-evidence">{{ {
+  "upload_evidence": url_for('api.upload_evidence', case_id=case.id),
+  "image_status": url_for('api.image_status', case_id=case.id),
+  "image_analyze": url_for('api.image_analyze', case_id=case.id),
+  "preview": url_for('api.evidence_preview', evidence_id='__EVID__')
+ } | tojson }}</script>
+<div class="ev-modal-backdrop" id="ev-modal" hidden>
+  <div class="ev-modal" role="dialog" aria-modal="true">
+    <div class="ev-modal-head">
+      <h3 id="ev-modal-title">Evidence preview</h3>
+      <button class="btn btn-sm" id="ev-modal-close">&#215;</button>
+    </div>
+    <div id="ev-modal-meta" class="tiny faint"></div>
+    <pre id="ev-modal-body" class="ev-modal-body"></pre>
+    <div id="ev-modal-extracted" class="ev-modal-extracted"></div>
+    <div class="tiny faint ev-modal-foot">
+      Read-only preview of the preserved evidence copy — nothing was modified.
+      Parsed events (extracted above) are what the timeline, graph, branches and
+      scenario simulator consume.</div>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='js/tab_evidence.js') }}"></script>

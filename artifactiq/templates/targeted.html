@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Targeted Tools{% endblock %}
+{% block content %}
+<div class="page-title"><h1>Targeted capability console</h1></div>
+<div class="panel" style="max-width:800px">
+  <p class="muted">
+    Targeted checks run a <b>single</b> forensic capability and show only its inputs and results.
+    Predictive panels are not shown, and full-investigation state is untouched — a separate targeted case
+    record keeps the result isolated. An uploaded artifact stays within the targeted result.
+  </p>
+  <div class="grid g2" style="margin-top:14px">
+    {% for cid, label in capabilities.items() %}
+    <div class="panel hover" style="background:var(--bg-2)">
+      <h3>{{ label }}</h3>
+      <div class="btn-row" style="margin-top:10px">
+        <button class="btn btn-sm btn-primary" data-targeted="{{ cid }}">Run in isolation</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script type="application/json" id="cfg-page-targeted">{{ {
+  "create_case": url_for('api.create_case')
+ } | tojson }}</script>
+<script src="{{ url_for('static', filename='js/page_targeted.js') }}"></script>{% endblock %}

@@ -1,0 +1,14 @@
+<div class="panel">
+  <h2>Predictive investigative branches <span class="faint tiny" id="br-version"></span></h2>
+  <div class="btn-row" style="margin-bottom:12px">
+    <button class="btn btn-primary" data-action="gen-branches" data-url="{{ url_for('api.branches_generate', case_id=case.id) }}"
+            data-toast="Branches generated">Generate branches</button>
+    <span class="faint tiny">Branches suggest <b>what to examine next</b> — they never assert facts about an attacker or the future. Each carries its evidence ids, missing evidence, and the priority formula.</span>
+  </div>
+  <div id="br-list"><div class="skeleton" style="height:140px"></div></div>
+</div>
+<script type="application/json" id="cfg-branches">{{ {
+  "branch_decide": url_for('api.branch_decide', branch_id='__ID__'),
+  "branches_view": url_for('api.branches_view', case_id=case.id)
+ } | tojson }}</script>
+<script src="{{ url_for('static', filename='js/tab_branches.js') }}"></script>

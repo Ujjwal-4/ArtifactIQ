@@ -1,0 +1,13 @@
+<div class="panel">
+  <h2>Investigation assistant <span class="faint tiny">local-first · every claim cites stored evidence</span></h2>
+  <div class="btn-row">
+    <button class="btn btn-primary" id="as-refresh">Compose summary</button>
+    <button class="btn" id="as-llm">Request remote AI clarification (opt-in)</button>
+  </div>
+  <div id="as-body" style="margin-top:8px"><div class="skeleton" style="height:130px"></div></div>
+</div>
+<script type="application/json" id="cfg-assistant">{{ {
+  "explanation": url_for('api.explanation', case_id=case.id),
+  "explanation_llm": url_for('api.explanation_llm', case_id=case.id)
+ } | tojson }}</script>
+<script src="{{ url_for('static', filename='js/tab_assistant.js') }}"></script>

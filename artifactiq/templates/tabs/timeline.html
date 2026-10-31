@@ -1,0 +1,50 @@
+<div class="panel">
+  <h2>Unified timeline <span class="faint tiny">UTC; unknown timestamps stay empty</span></h2>
+  <div class="filters">
+    <div><label for="tl-q">Search</label><input class="f-input" id="tl-q" placeholder="text in any field"></div>
+    <div><label for="tl-type">Type</label><select id="tl-type" class="f-input"><option value=""></option></select></div>
+    <div><label for="tl-user">User</label><input class="f-input" id="tl-user"></div>
+    <div><label for="tl-host">Host</label><input class="f-input" id="tl-host"></div>
+    <div><label for="tl-from">From (UTC)</label><input class="f-input" id="tl-from" placeholder="2025-01-01T00:00"></div>
+    <div><label for="tl-to">To (UTC)</label><input class="f-input" id="tl-to"></div>
+    <button class="btn" id="tl-apply">Apply</button>
+    <a class="btn btn-ghost" id="tl-export" href="{{ url_for('api.timeline_export', case_id=case.id) }}">Export CSV</a>
+    <span class="badge info" id="tl-total">—</span>
+  </div>
+
+  <div class="grid" style="grid-template-columns: 1fr 260px;">
+    <div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>UTC time</th><th>Type</th><th>Details</th><th>Ctx</th></tr></thead>
+          <tbody id="tl-body"><tr><td colspan="4"><div class="skeleton" style="height:120px"></div></td></tr></tbody>
+        </table>
+      </div>
+      <div class="btn-row" style="margin-top:10px">
+        <button class="btn btn-sm" id="tl-prev">‹ Prev</button>
+        <button class="btn btn-sm" id="tl-next">Next ›</button>
+        <span class="tiny faint" id="tl-page">page 1</span>
+      </div>
+    </div>
+    <div>
+      <div class="panel" style="padding:12px">
+        <h3>Event types</h3>
+        <div id="tl-donut" style="margin:6px auto"></div>
+      </div>
+      <div class="panel" style="padding:12px; margin-top:12px">
+        <h3>Clusters (30 min gaps)</h3>
+        <div id="tl-clusters" class="tiny muted">loading…</div>
+      </div>
+      <div class="panel" style="padding:12px; margin-top:12px">
+        <h3>Users</h3>
+        <div id="tl-users" class="chips">…</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script type="application/json" id="cfg-timeline">{{ {
+  "timeline_clusters": url_for('api.timeline_clusters', case_id=case.id),
+  "timeline": url_for('api.timeline', case_id=case.id)
+ } | tojson }}</script>
+<script src="{{ url_for('static', filename='js/tab_timeline.js') }}"></script>

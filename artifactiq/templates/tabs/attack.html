@@ -1,0 +1,26 @@
+<div class="panel">
+  <h2>MITRE ATT&amp;CK mapping <span class="faint tiny" id="at-version"></span></h2>
+  <div class="btn-row" style="margin-bottom:12px">
+    <button class="btn btn-primary" data-action="run-analysis" data-url="{{ url_for('api.analyze', case_id=case.id) }}"
+            data-toast="Analysis refreshed">Run rules</button>
+    <span class="faint tiny">Maps only when evidence supports it; rationale and rule version travel with every mapping. Zero mappings is a valid outcome.</span>
+  </div>
+
+  <h2 style="margin-top:18px">Findings</h2>
+  <div class="table-wrap" id="at-findings">
+    <table><thead><tr><th>Severity</th><th>Finding</th><th>Rule</th><th>Evidence</th></tr></thead>
+      <tbody><tr><td colspan="4"><div class="skeleton" style="height:90px"></div></td></tr></tbody>
+    </table>
+  </div>
+
+  <h2 style="margin-top:20px">Technique mappings</h2>
+  <div class="table-wrap" id="at-maps">
+    <table><thead><tr><th>Technique</th><th>Tactic</th><th>Rationale</th><th>Conf.</th><th>Evidence ids</th></tr></thead>
+      <tbody><tr><td colspan="5"><div class="skeleton" style="height:70px"></div></td></tr></tbody>
+    </table>
+  </div>
+</div>
+<script type="application/json" id="cfg-attack">{{ {
+  "attack_view": url_for('api.attack_view', case_id=case.id)
+ } | tojson }}</script>
+<script src="{{ url_for('static', filename='js/tab_attack.js') }}"></script>
